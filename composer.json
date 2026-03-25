@@ -1,0 +1,17 @@
+{
+    "name": "cats/invoice-generator",
+    "description": "Cats Invoice Generator for WooCommerce",
+    "type": "wordpress-plugin",
+    "require": {
+        "php": ">=8.0",
+        "dompdf/dompdf": "^3.0"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "allow-plugins": {
+            "composer/installers": true
+        }
+    }
+}
