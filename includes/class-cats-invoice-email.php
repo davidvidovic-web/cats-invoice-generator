@@ -14,6 +14,7 @@ class Cats_Invoice_Email {
 	private const ATTACH_TO_EMAILS = [
 		'customer_processing_order',
 		'customer_completed_order',
+		'customer_invoice',
 	];
 
 	public function __construct() {
@@ -36,6 +37,23 @@ class Cats_Invoice_Email {
 
 		if ( ! $order instanceof WC_Order ) {
 			return $attachments;
+		}
+
+		// BiH customers only get an invoice if they are pravno lice (wholesale_customer).
+		// For all other countries (EU etc.) every customer gets an invoice.
+		if ( 'BA' === $order->get_billing_country() ) {
+			$user_id      = $order->get_customer_id();
+			$user         = $user_id ? get_userdata( $user_id ) : false;
+			$is_wholesale = $user && in_array( 'wholesale_customer', (array) $user->roles, true );
+
+			// Guest orders (no account) — fall back to the order meta saved at checkout.
+			if ( ! $is_wholesale && ! $user_id ) {
+				$is_wholesale = 'pravno_lice' === $order->get_meta( '_cats_checkout_user_type' );
+			}
+
+			if ( ! $is_wholesale ) {
+				return $attachments;
+			}
 		}
 
 		try {
